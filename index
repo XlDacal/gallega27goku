@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trofeo Charly</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font Inter & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dart: {
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155',
+                            cricket: '#10b981',
+                            x501: '#ef4444',
+                            gold: '#f59e0b',
+                            accent: '#3b82f6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+        }
+        /* Spreadsheet cell input styling */
+        .cell-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            text-align: center;
+            font-family: monospace;
+            font-weight: 600;
+            padding: 10px 4px;
+            outline: none;
+            transition: background-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .cell-input:focus {
+            background-color: rgba(59, 130, 246, 0.2);
+            box-shadow: inset 0 0 0 2px #3b82f6;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            height: 10px;
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        /* Hide HTML5 number input arrows for clean look */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans p-3 sm:p-8 justify-start">
+
+    <div class="max-w-7xl mx-auto w-full space-y-8">
+        
+        <!-- Header -->
+        <header class="flex items-center justify-between border-b border-dart-border pb-4">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">🎯</span>
+                <h1 class="font-display font-black text-2xl sm:text-4xl text-white tracking-wider uppercase">
+<body class="min-h-screen flex flex-col font-sans p-3 sm:p-8 justify-center">
+
+    <div class="max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- Header -->
+        <header class="flex items-center justify-between border-b border-dart-border pb-4">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">🎯</span>
+                <h1 class="font-display font-black text-2xl sm:text-4xl text-white tracking-wider uppercase">
+                    TROFEO CHARLY
+                </h1>
+            </div>
+        </header>
+
+        <!-- 1. Ranking Section: De Peor a Mejor por HCP (Ahora de Primero) -->
+        <div class="bg-dart-card border border-dart-border rounded-2xl p-4 sm:p-6 shadow-xl space-y-4">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-dart-dark text-[11px] font-bold uppercase text-gray-400 border-b border-dart-border">
+                            <th class="p-3 w-16 text-center">Posición</th>
+                            <th class="p-3">Jugador</th>
+                            <th class="p-3 text-center">Media Cricket (MPR)</th>
+                            <th class="p-3 text-center">Media 501 (PPD)</th>
+                            <th class="p-3 text-center text-dart-gold">HCP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-table-body" class="divide-y divide-dart-border text-sm">
+                        <!-- Rendered dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. Main Spreadsheet Table (Ahora de Segundo) -->
+        <div class="bg-dart-card border border-dart-border rounded-2xl shadow-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[1200px]">
+                    <thead>
+                        <!-- Table Column Headers -->
+                        <tr class="bg-dart-dark text-[11px] font-bold uppercase tracking-wider text-gray-300 border-b border-dart-border">
+                            <th class="p-3 sticky left-0 z-20 bg-dart-dark border-r border-dart-border min-w-[130px]">
+                                Jugador
+                            </th>
+                            
+                            <!-- J1 to J14 -->
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J1<br><span class="text-[9px] opacity-80">Cricket</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-x501/10 text-dart-x501 w-16">J2<br><span class="text-[9px] opacity-80">501</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J3<br><span class="text-[9px] opacity-80">Cricket</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-x501/10 text-dart-x501 w-16">J4<br><span class="text-[9px] opacity-80">501</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J5<br><span class="text-[9px] opacity-80">Cricket</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-x501/10 text-dart-x501 w-16">J6<br><span class="text-[9px] opacity-80">501</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J7<br><span class="text-[9px] opacity-80">Cricket</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-x501/10 text-dart-x501 w-16">J8<br><span class="text-[9px] opacity-80">501</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J9<br><span class="text-[9px] opacity-80">Cricket</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-x501/10 text-dart-x501 w-16">J10<br><span class="text-[9px] opacity-80">501</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J11<br><span class="text-[9px] opacity-80">Cricket</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-x501/10 text-dart-x501 w-16">J12<br><span class="text-[9px] opacity-80">501</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J13<br><span class="text-[9px] opacity-80">Cricket</span></th>
+                            <th class="p-2 text-center border-r border-dart-border bg-dart-x501/10 text-dart-x501 w-16">J14<br><span class="text-[9px] opacity-80">501</span></th>
+
+                            <!-- Calculated Summary Columns -->
+                            <th class="p-2 text-center border-r border-dart-border text-dart-cricket min-w-[95px]">Media Cricket<br><span class="text-[9px] text-gray-400 font-normal">(MPR)</span></th>
+                            <th class="p-2 text-center border-r border-dart-border text-dart-x501 min-w-[95px]">Media 501<br><span class="text-[9px] text-gray-400 font-normal">(PPD)</span></th>
+                            <th class="p-3 text-center bg-dart-gold/20 text-dart-gold min-w-[100px]">
+                                HCP
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <!-- Players Body -->
+                    <tbody id="league-table-body" class="divide-y divide-dart-border text-sm">
+                        <!-- Rendered via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const PLAYERS = ['Ivan', 'Omar', 'Roi', 'Taurus', 'Dacal'];
+        const TOTAL_JORNADAS = 14;
+        const STORAGE_KEY = 'trofeo_charly_scores';
+
+        let scoresData = {};
+
+        window.onload = function() {
+            loadScores();
+            renderTable();
+        };
+
+        function initEmptyScores() {
+            scoresData = {};
+            PLAYERS.forEach(player => {
+                scoresData[player] = {};
+                for (let j = 1; j <= TOTAL_JORNADAS; j++) {
+                    scoresData[player][j] = '';
+                }
+            });
+        }
+
+        function loadScores() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    scoresData = JSON.parse(saved);
+                } catch(e) {
+                    initEmptyScores();
+                }
+            } else {
+                initEmptyScores();
+            }
+        }
+
+        function saveScores() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(scoresData));
+            updateCalculations();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('league-table-body');
+            tbody.innerHTML = '';
+
+            PLAYERS.forEach(player => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition border-b border-dart-border';
+
+                // Player Column (Sticky)
+                let rowHtml = `
+                    <td class="p-3 font-bold text-white sticky left-0 z-10 bg-dart-card border-r border-dart-border flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-dart-accent"></span>
+                        ${player}
+                    </td>
+                `;
+
+                // 14 Jornadas Inputs
+                for (let j = 1; j <= TOTAL_JORNADAS; j++) {
+                    const isCricket = j % 2 !== 0;
+                    const val = scoresData[player] && scoresData[player][j] !== undefined ? scoresData[player][j] : '';
+                    const bgTint = isCricket ? 'bg-dart-cricket/5 hover:bg-dart-cricket/15' : 'bg-dart-x501/5 hover:bg-dart-x501/15';
+
+                    rowHtml += `
+                        <td class="p-0 border-r border-dart-border ${bgTint}">
+                            <input 
+                                type="number" 
+                                step="0.01" 
+                                min="0" 
+                                class="cell-input text-white focus:text-dart-gold"
+                                value="${val}" 
+                                placeholder="-"
+                                data-player="${player}"
+                                data-jornada="${j}"
+                                oninput="onCellInput(this)"
+                            />
+                        </td>
+                    `;
+                }
+
+                // Calculated Results Cells
+                rowHtml += `
+                    <td id="mpr-avg-${player}" class="p-3 text-center border-r border-dart-border font-mono font-bold text-dart-cricket bg-dart-dark/30">-</td>
+                    <td id="ppd-avg-${player}" class="p-3 text-center border-r border-dart-border font-mono font-bold text-dart-x501 bg-dart-dark/30">-</td>
+                    <td id="hcp-val-${player}" class="p-3 text-center font-mono font-extrabold text-dart-gold bg-dart-gold/10 text-base">-</td>
+                `;
+
+                tr.innerHTML = rowHtml;
+                tbody.appendChild(tr);
+            });
+
+            updateCalculations();
+        }
+
+        function onCellInput(inputEl) {
+            const player = inputEl.getAttribute('data-player');
+            const jornada = parseInt(inputEl.getAttribute('data-jornada'), 10);
+            const val = inputEl.value.trim();
+
+            if (!scoresData[player]) scoresData[player] = {};
+            scoresData[player][jornada] = val !== '' ? parseFloat(val) : '';
+
+            saveScores();
+        }
+
+        function updateCalculations() {
+            const playerStats = [];
+
+            PLAYERS.forEach(player => {
+                const playerScores = scoresData[player] || {};
+                
+                let cricketSum = 0;
+                let cricketCount = 0;
+                
+                let x501Sum = 0;
+                let x501Count = 0;
+
+                for (let j = 1; j <= TOTAL_JORNADAS; j++) {
+                    const val = parseFloat(playerScores[j]);
+                    if (!isNaN(val) && val > 0) {
+                        if (j % 2 !== 0) {
+                            // Cricket (MPR)
+                            cricketSum += val;
+                            cricketCount++;
+                        } else {
+                            // 501 (PPD)
+                            x501Sum += val;
+                            x501Count++;
+                        }
+                    }
+                }
+
+                const avgMpr = cricketCount > 0 ? (cricketSum / cricketCount) : 0;
+                const avgPpd = x501Count > 0 ? (x501Sum / x501Count) : 0;
+
+                // Formula: ( Media 501 + (Media MPR * 8.25) ) / 2
+                let hcp = 0;
+                if (avgMpr > 0 || avgPpd > 0) {
+                    hcp = (avgPpd + (avgMpr * 8.25)) / 2;
+                }
+
+                // Update Row Cells in main table
+                const mprEl = document.getElementById(`mpr-avg-${player}`);
+                const ppdEl = document.getElementById(`ppd-avg-${player}`);
+                const hcpEl = document.getElementById(`hcp-val-${player}`);
+
+                if (mprEl) mprEl.textContent = avgMpr > 0 ? avgMpr.toFixed(2) : '-';
+                if (ppdEl) ppdEl.textContent = avgPpd > 0 ? avgPpd.toFixed(2) : '-';
+                if (hcpEl) hcpEl.textContent = hcp > 0 ? hcp.toFixed(2) : '-';
+
+                playerStats.push({
+                    name: player,
+                    avgMpr: avgMpr,
+                    avgPpd: avgPpd,
+                    hcp: hcp
+                });
+            });
+
+            // Sort Worst to Best based on HCP (Ascending: 0/lowest HCP comes first as worst, highest HCP as best)
+            playerStats.sort((a, b) => a.hcp - b.hcp);
+
+            // Render Ranking Table
+            renderRankingTable(playerStats);
+        }
+
+        function renderRankingTable(stats) {
+            const tbody = document.getElementById('ranking-table-body');
+            tbody.innerHTML = '';
+
+            stats.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/30 transition';
+
+                const posText = `${index + 1}º`;
+                const badgeColor = index === stats.length - 1 
+                    ? 'text-dart-gold bg-dart-gold/10 font-bold' 
+                    : (index === 0 ? 'text-red-400 bg-red-400/10' : 'text-gray-300');
+
+                tr.innerHTML = `
+                    <td class="p-3 text-center font-bold text-gray-400 font-mono">${posText}</td>
+                    <td class="p-3 font-bold text-white flex items-center gap-2">
+                        <span>${item.name}</span>
+                    </td>
+                    <td class="p-3 text-center font-mono text-dart-cricket">${item.avgMpr > 0 ? item.avgMpr.toFixed(2) : '-'}</td>
+                    <td class="p-3 text-center font-mono text-dart-x501">${item.avgPpd > 0 ? item.avgPpd.toFixed(2) : '-'}</td>
+                    <td class="p-3 text-center font-mono font-extrabold ${badgeColor} bg-dart-gold/10">${item.hcp > 0 ? item.hcp.toFixed(2) : '-'}</td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
