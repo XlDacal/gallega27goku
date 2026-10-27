@@ -36,7 +36,6 @@
             background-color: #0b0f19;
             color: #f8fafc;
         }
-        /* Spreadsheet cell input styling */
         .cell-input {
             width: 100%;
             height: 100%;
@@ -52,7 +51,6 @@
             background-color: rgba(59, 130, 246, 0.2);
             box-shadow: inset 0 0 0 2px #3b82f6;
         }
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             height: 10px;
             width: 8px;
@@ -67,7 +65,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
-        /* Hide HTML5 number input arrows for clean look */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -80,15 +77,6 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans p-3 sm:p-8 justify-start">
 
-    <div class="max-w-7xl mx-auto w-full space-y-8">
-        
-        <!-- Header -->
-        <header class="flex items-center justify-between border-b border-dart-border pb-4">
-            <div class="flex items-center gap-3">
-                <span class="text-3xl">🎯</span>
-                <h1 class="font-display font-black text-2xl sm:text-4xl text-white tracking-wider uppercase">
-<body class="min-h-screen flex flex-col font-sans p-3 sm:p-8 justify-center">
-
     <div class="max-w-7xl mx-auto w-full space-y-6">
         
         <!-- Header -->
@@ -99,9 +87,13 @@
                     TROFEO CHARLY
                 </h1>
             </div>
+            <div id="sync-status" class="flex items-center gap-2 text-xs font-mono text-gray-400">
+                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" id="status-dot"></span>
+                <span id="status-text">Conectando...</span>
+            </div>
         </header>
 
-        <!-- 1. Ranking Section: De Peor a Mejor por HCP (Ahora de Primero) -->
+        <!-- 1. Ranking Table -->
         <div class="bg-dart-card border border-dart-border rounded-2xl p-4 sm:p-6 shadow-xl space-y-4">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -121,18 +113,16 @@
             </div>
         </div>
 
-        <!-- 2. Main Spreadsheet Table (Ahora de Segundo) -->
+        <!-- 2. Main Spreadsheet Table -->
         <div class="bg-dart-card border border-dart-border rounded-2xl shadow-2xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse min-w-[1200px]">
                     <thead>
-                        <!-- Table Column Headers -->
                         <tr class="bg-dart-dark text-[11px] font-bold uppercase tracking-wider text-gray-300 border-b border-dart-border">
                             <th class="p-3 sticky left-0 z-20 bg-dart-dark border-r border-dart-border min-w-[130px]">
                                 Jugador
                             </th>
                             
-                            <!-- J1 to J14 -->
                             <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J1<br><span class="text-[9px] opacity-80">Cricket</span></th>
                             <th class="p-2 text-center border-r border-dart-border bg-dart-x501/10 text-dart-x501 w-16">J2<br><span class="text-[9px] opacity-80">501</span></th>
                             <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J3<br><span class="text-[9px] opacity-80">Cricket</span></th>
@@ -148,7 +138,6 @@
                             <th class="p-2 text-center border-r border-dart-border bg-dart-cricket/10 text-dart-cricket w-16">J13<br><span class="text-[9px] opacity-80">Cricket</span></th>
                             <th class="p-2 text-center border-r border-dart-border bg-dart-x501/10 text-dart-x501 w-16">J14<br><span class="text-[9px] opacity-80">501</span></th>
 
-                            <!-- Calculated Summary Columns -->
                             <th class="p-2 text-center border-r border-dart-border text-dart-cricket min-w-[95px]">Media Cricket<br><span class="text-[9px] text-gray-400 font-normal">(MPR)</span></th>
                             <th class="p-2 text-center border-r border-dart-border text-dart-x501 min-w-[95px]">Media 501<br><span class="text-[9px] text-gray-400 font-normal">(PPD)</span></th>
                             <th class="p-3 text-center bg-dart-gold/20 text-dart-gold min-w-[100px]">
@@ -157,7 +146,6 @@
                         </tr>
                     </thead>
 
-                    <!-- Players Body -->
                     <tbody id="league-table-body" class="divide-y divide-dart-border text-sm">
                         <!-- Rendered via JavaScript -->
                     </tbody>
@@ -167,17 +155,21 @@
 
     </div>
 
-    <script>
+    <!-- Firebase Cloud Storage Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         const PLAYERS = ['Ivan', 'Omar', 'Roi', 'Taurus', 'Dacal'];
         const TOTAL_JORNADAS = 14;
-        const STORAGE_KEY = 'trofeo_charly_scores';
-
+        
+        // App ID configuration
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'trofeo-charly-app';
         let scoresData = {};
-
-        window.onload = function() {
-            loadScores();
-            renderTable();
-        };
+        let db = null;
+        let docRef = null;
+        let isCloudConnected = false;
 
         function initEmptyScores() {
             scoresData = {};
@@ -189,33 +181,87 @@
             });
         }
 
-        function loadScores() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                try {
-                    scoresData = JSON.parse(saved);
-                } catch(e) {
-                    initEmptyScores();
+        initEmptyScores();
+
+        // Initialize Firebase Cloud persistence
+        async function setupCloudStorage() {
+            try {
+                const firebaseConfig = typeof __firebase_config !== 'undefined' 
+                    ? JSON.parse(__firebase_config) 
+                    : { apiKey: "demo", projectId: "demo-trofeo-charly" };
+
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Target document path for sharing scores
+                docRef = doc(db, 'artifacts', appId, 'public', 'data', 'scoresData', 'main');
+
+                // Auth
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
-            } else {
-                initEmptyScores();
+
+                // Listen to Cloud Updates in Realtime
+                onSnapshot(docRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        scoresData = docSnap.data();
+                    } else {
+                        // Save initial layout to cloud
+                        setDoc(docRef, scoresData);
+                    }
+                    updateStatus('En línea (Nube)', 'bg-emerald-500');
+                    renderTable();
+                    isCloudConnected = true;
+                }, (error) => {
+                    console.warn("Cloud error, using local fallback:", error);
+                    fallbackToLocalStorage();
+                });
+
+            } catch(e) {
+                console.warn("Firebase setup failed, using local fallback", e);
+                fallbackToLocalStorage();
             }
         }
 
-        function saveScores() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(scoresData));
-            updateCalculations();
+        function fallbackToLocalStorage() {
+            updateStatus('Modo local', 'bg-blue-500');
+            const saved = localStorage.getItem('trofeo_charly_scores');
+            if (saved) {
+                try { scoresData = JSON.parse(saved); } catch(e) { initEmptyScores(); }
+            }
+            renderTable();
         }
+
+        function updateStatus(text, colorClass) {
+            const dot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            if (dot && statusText) {
+                dot.className = `w-2 h-2 rounded-full ${colorClass}`;
+                statusText.textContent = text;
+            }
+        }
+
+        window.saveScoresCloud = function() {
+            if (isCloudConnected && docRef) {
+                setDoc(docRef, scoresData, { merge: true }).catch(err => console.error(err));
+            } else {
+                localStorage.setItem('trofeo_charly_scores', JSON.stringify(scoresData));
+            }
+            updateCalculations();
+        };
 
         function renderTable() {
             const tbody = document.getElementById('league-table-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             PLAYERS.forEach(player => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/40 transition border-b border-dart-border';
 
-                // Player Column (Sticky)
                 let rowHtml = `
                     <td class="p-3 font-bold text-white sticky left-0 z-10 bg-dart-card border-r border-dart-border flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-dart-accent"></span>
@@ -223,7 +269,6 @@
                     </td>
                 `;
 
-                // 14 Jornadas Inputs
                 for (let j = 1; j <= TOTAL_JORNADAS; j++) {
                     const isCricket = j % 2 !== 0;
                     const val = scoresData[player] && scoresData[player][j] !== undefined ? scoresData[player][j] : '';
@@ -240,13 +285,12 @@
                                 placeholder="-"
                                 data-player="${player}"
                                 data-jornada="${j}"
-                                oninput="onCellInput(this)"
+                                oninput="window.onCellInput(this)"
                             />
                         </td>
                     `;
                 }
 
-                // Calculated Results Cells
                 rowHtml += `
                     <td id="mpr-avg-${player}" class="p-3 text-center border-r border-dart-border font-mono font-bold text-dart-cricket bg-dart-dark/30">-</td>
                     <td id="ppd-avg-${player}" class="p-3 text-center border-r border-dart-border font-mono font-bold text-dart-x501 bg-dart-dark/30">-</td>
@@ -260,7 +304,7 @@
             updateCalculations();
         }
 
-        function onCellInput(inputEl) {
+        window.onCellInput = function(inputEl) {
             const player = inputEl.getAttribute('data-player');
             const jornada = parseInt(inputEl.getAttribute('data-jornada'), 10);
             const val = inputEl.value.trim();
@@ -268,8 +312,8 @@
             if (!scoresData[player]) scoresData[player] = {};
             scoresData[player][jornada] = val !== '' ? parseFloat(val) : '';
 
-            saveScores();
-        }
+            window.saveScoresCloud();
+        };
 
         function updateCalculations() {
             const playerStats = [];
@@ -279,7 +323,6 @@
                 
                 let cricketSum = 0;
                 let cricketCount = 0;
-                
                 let x501Sum = 0;
                 let x501Count = 0;
 
@@ -287,11 +330,9 @@
                     const val = parseFloat(playerScores[j]);
                     if (!isNaN(val) && val > 0) {
                         if (j % 2 !== 0) {
-                            // Cricket (MPR)
                             cricketSum += val;
                             cricketCount++;
                         } else {
-                            // 501 (PPD)
                             x501Sum += val;
                             x501Count++;
                         }
@@ -301,13 +342,11 @@
                 const avgMpr = cricketCount > 0 ? (cricketSum / cricketCount) : 0;
                 const avgPpd = x501Count > 0 ? (x501Sum / x501Count) : 0;
 
-                // Formula: ( Media 501 + (Media MPR * 8.25) ) / 2
                 let hcp = 0;
                 if (avgMpr > 0 || avgPpd > 0) {
                     hcp = (avgPpd + (avgMpr * 8.25)) / 2;
                 }
 
-                // Update Row Cells in main table
                 const mprEl = document.getElementById(`mpr-avg-${player}`);
                 const ppdEl = document.getElementById(`ppd-avg-${player}`);
                 const hcpEl = document.getElementById(`hcp-val-${player}`);
@@ -324,15 +363,13 @@
                 });
             });
 
-            // Sort Worst to Best based on HCP (Ascending: 0/lowest HCP comes first as worst, highest HCP as best)
             playerStats.sort((a, b) => a.hcp - b.hcp);
-
-            // Render Ranking Table
             renderRankingTable(playerStats);
         }
 
         function renderRankingTable(stats) {
             const tbody = document.getElementById('ranking-table-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             stats.forEach((item, index) => {
@@ -342,7 +379,7 @@
                 const posText = `${index + 1}º`;
                 const badgeColor = index === stats.length - 1 
                     ? 'text-dart-gold bg-dart-gold/10 font-bold' 
-                    : (index === 0 ? 'text-red-400 bg-red-400/10' : 'text-gray-300');
+                    : 'text-gray-300';
 
                 tr.innerHTML = `
                     <td class="p-3 text-center font-bold text-gray-400 font-mono">${posText}</td>
@@ -357,6 +394,9 @@
                 tbody.appendChild(tr);
             });
         }
+
+        // Start cloud initialization
+        setupCloudStorage();
     </script>
 </body>
 </html>
